@@ -1,21 +1,27 @@
 const { exec } = require('child_process');
 
 function reloadNginx(){
-    exec("nginx reload");
+    exec("service nginx reload");
 }
 
-function siteEnable(filename){
-    exec("ln -s /etc/nginx/sites-available/"+filename+" /etc/nginx/sites-enabled/");
+function siteEnable(domain){
+    exec("ln -s /etc/nginx/sites-available/"+domain+" /etc/nginx/sites-enabled/");
     reloadNginx();
 }
 
-function siteDisable(filename){
-    exec("rm /etc/nginx/sites-enabled/"+filename);
+function siteDisable(domain){
+    exec("rm /etc/nginx/sites-enabled/"+domain);
     reloadNginx();
 }
 
-function certbot(domain, email){
-    exec('certbot certonly --webroot -w /var/www/acme/'+domain+" ")
+function siteRemove(domain){
+    siteDisable(domain);
+    exec("rm /etc/nginx/sites-available/"+domain);
+    reloadNginx();
+}
+
+function certbot(domain){
+    exec('certbot certonly --webroot -w /var/www/acme/'+domain+" -d "+domain+" -d www."+domain+" --non-interactive")
 }
 
 function createAcmeFolder(domain){
